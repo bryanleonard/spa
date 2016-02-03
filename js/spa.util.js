@@ -17,7 +17,7 @@ spa.util = (function() {
 	// Purpose: Common code to set configs in feature modules
 	setConfigMap = function(arg_map) {
 		var input_map = arg_map.input_map,
-			settable_table = arg_map.settable_table,
+			settable_map = arg_map.settable_map,
 			config_map = arg_map.config_map,
 			key_name,
 			error;
@@ -28,10 +28,9 @@ spa.util = (function() {
 					config_map[key_name] = input_map[key_name];
 				}
 				else {
-					error = makeError('Bad Input', 'Setting config key |' + key_name + "| is not supported")
+					error = makeError('Bad Input', 'Setting config key |' + key_name + "| is not supported");
+					throw error;
 				}
-
-				throw error;
 			}
 		}
 	};

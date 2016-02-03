@@ -30,14 +30,19 @@ strong {
 /** End standard selectors */
 
 /** Begin spa namespace selectors */
-.spa {
-	position: absolute;
-	top: 8px;
-	left: 8px;
-	bottom: 8px;
-	right: 8px;
-	border-radius: 8px 8px 0 8px;
-	background-color: #fff;
+#spa {
+	position : absolute;
+	top      : 8px;
+	left     : 8px;
+	bottom   : 8px;
+	right    : 8px;
+
+	min-height : 500px;
+	min-width  : 500px;
+	overflow   : hidden;
+
+	background-color : #fff;
+	border-radius    : 0 8px 0 8px;
 }
 
 .spa-slider {

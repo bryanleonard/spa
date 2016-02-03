@@ -15,7 +15,7 @@ spa.chat = (function() {
 					+ '<div class="spa-chat-sizer">'
 						+ '<div class="spa-chat-msgs"></div>'
 						+ '<div class="spa-chat-box">'
-							+ '<input type="text">' /* should have spa-chat-input class? */
+							+ '<input type="text"/>' /* should have spa-chat-input class? */
 							+ '<div>send</div>'
 						+ '</div>'
 					+ '</div>'
@@ -68,16 +68,16 @@ spa.chat = (function() {
 		var $append_target = stateMap.$append_target,
 			$slider        = $append_target.find( '.spa-chat' );
 		
-			jqueryMap = {
-				$slider : $slider,
-				$head   : $slider.find('.spa-chat-head'),
-				$toggle : $slider.find('.spa-chat-head-toggle'),
-				$title  : $slider.find('.spa-chat-head-title'),
-				$sizer  : $slider.find('.spa-chat-sizer'),
-				$msgs   : $slider.find('.spa-chat-msgs'),
-				$box    : $slider.find('.spa-chat-box'),
-				$input  : $slider.find('.spa-chat-input input[type=text]')
-			};
+		jqueryMap = {
+			$slider : $slider,
+			$head   : $slider.find('.spa-chat-head'),
+			$toggle : $slider.find('.spa-chat-head-toggle'),
+			$title  : $slider.find('.spa-chat-head-title'),
+			$sizer  : $slider.find('.spa-chat-sizer'),
+			$msgs   : $slider.find('.spa-chat-msgs'),
+			$box    : $slider.find('.spa-chat-box'),
+			$input  : $slider.find('.spa-chat-input input[type=text]')
+		};
 	};
 
 	setPxSizes = function() {
@@ -87,7 +87,7 @@ spa.chat = (function() {
 		px_per_em = getEmSize( jqueryMap.$slider.get(0) );
 		opened_height_em = configMap.slider_opened_em;
 
-		stateMap.px_per_em = px_per_em;
+		stateMap.px_per_em        = px_per_em;
 		stateMap.slider_closed_px = configMap.slider_closed_em * px_per_em;
 		stateMap.slider_opened_px = opened_height_em * px_per_em;
 
@@ -155,7 +155,7 @@ spa.chat = (function() {
 		}
 
 		// animate slider position change
-		stateMap.position_position_type = '';
+		stateMap.position_type = '';
 		jqueryMap.$slider.velocity(
 			{ height: height_px },
 			function() {
@@ -164,7 +164,7 @@ spa.chat = (function() {
 				stateMap.position_type = position_type;
 
 				if (cb) {
-					cb(jquery.$slider);
+					cb(jqueryMap.$slider);
 				}
 			}
 		);
@@ -256,7 +256,7 @@ spa.chat = (function() {
 		setSliderPosition : setSliderPosition,
 		configModule      : configModule,
 		initModule        : initModule
-	}
+	};
 
 	
 }());
