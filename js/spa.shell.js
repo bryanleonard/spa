@@ -35,15 +35,19 @@ spa.shell = (function() {
 				+ '</section>'
 				+ '<footer class="spa-shell-foot"></footer>'
 				+ '<div class="spa-shell-modal"></div>',
+			resize_interval: 200
 		},
 		stateMap = { 
-			anchor_map : {} // stores current anchor map vals
+			$container : undefined,
+			anchor_map : {}, // stores current anchor map vals
+			resize_idto : undefined // state var to retain the resize timeout ID
 		},
 		jqueryMap = {},
 		copyAnchorMap,
 		setJqueryMap,
 		changeAnchorPart,
 		onHashchange,
+		onResize,
 		setChatAnchor,
 		initModule;
 	
@@ -138,17 +142,15 @@ spa.shell = (function() {
 		_s_chat_previous = anchor_map_previous._s_chat;
 		_s_chat_proposed = anchor_map_proposed._s_chat;
 
-		// Begin adjust chat component if changed
+		// Begin adjusting chat component if changed
 		if (!anchor_map_previous || _s_chat_previous !== _s_chat_proposed ) {
 			s_chat_proposed = anchor_map_proposed.chat;
 
 			switch( s_chat_proposed ) {
 				case 'opened':
-					// toggleChat(true);
 					is_ok = spa.chat.setSliderPosition( 'opened' );
 					break;
 				case 'closed':
-					// toggleChat(false);
 					is_ok = spa.chat.setSliderPosition( 'closed' );
 					break;
 				default: 
@@ -172,6 +174,20 @@ spa.shell = (function() {
 
 		return false;
 	};
+
+	// Resize that shit... if necessary
+	onResize = function() {
+		if (stateMap.resize_idto ) { return true; }
+
+		spa.chat.handleResize();
+		stateMap.resize_idto = setTimeout(
+			function() {
+				stateMap.resize_idto = undefined
+			}, 
+			configMap.resize_interval
+		);
+		return true;
+	}
 
 
 
@@ -221,7 +237,8 @@ spa.shell = (function() {
 
 		$(window)
 			.bind('hashchange', onHashchange)
-			.trigger('hashchange');
+			.trigger('hashchange')
+			.bind('resize', onResize);
 
 	};
 

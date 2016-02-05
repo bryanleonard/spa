@@ -41,8 +41,11 @@ strong {
 	min-width  : 500px;
 	overflow   : hidden;
 
-	background-color : #fff;
-	border-radius    : 0 8px 0 8px;
+	background : #fff;
+	min-height : 15em;
+	min-width  : 35em;
+	
+	border-radius : 0 8px 0 8px;
 }
 
 .spa-slider {
