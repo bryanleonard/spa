@@ -70,8 +70,6 @@ spa.shell = (function() {
 		};
 	};
 
-
-
 	// Changes part of the URI anchor component
 	changeAnchorPart = function(arg_map) {
 		var anchor_map_revise = copyAnchorMap(),
@@ -210,6 +208,8 @@ spa.shell = (function() {
 		return changeAnchorPart({ chat: position_type});
 	};
 
+
+
 	// Public methods
 	// --------------------------------------
 	initModule = function($container) {
@@ -237,8 +237,8 @@ spa.shell = (function() {
 
 		$(window)
 			.bind('hashchange', onHashchange)
-			.trigger('hashchange')
-			.bind('resize', onResize);
+			.bind('resize', onResize)
+			.trigger('hashchange');
 
 	};
 
