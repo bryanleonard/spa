@@ -2,7 +2,16 @@ spa.fake = (function() {
 
 	'use strict';
 
-	var getPeopleList;
+	var fakeIdSerial, 
+		makeFakeId, 
+		getPeopleList, 
+		mockSio;
+
+	fakeIdSerial = 5;
+
+	makeFakeId = function() {
+		return 'id_' + String( fakeIdSerial++ );
+	};
 
 	getPeopleList = function() {
 		return [
@@ -25,17 +34,50 @@ spa.fake = (function() {
 				name : 'Wilma',
 				_id : 'id_04',
 				css_map : { top: 140, left: 20, 'background-color' : 'rgb( 192, 128, 128)' }
-			},
-			{ 
+			}
+			,{ 
 				name : 'Bryan',
 				_id : 'id_05',
 				css_map : { top: 180, left: 20, 'background-color' : 'rgb( 207, 13, 32)' }
 			}
 		];
-	}
+	};
+
+	mockSio = (function() {
+		var on_sio, 
+			emit_sio, 
+			callback_map = {};
+
+		on_sio = function(msg_type, callback) {
+			callback_map[msg_type] = callback;
+		};
+
+		// emulates sending a message to the server
+		emit_sio = function(msg_type, data) {
+			// respond to 'adduser' even with 'userupdate' cb after a 3s delay
+			if (msg_type === 'adduser' && callback_map.userupdate) {
+				setTimeout(function() {
+					callback_map.userupdate(
+						[{
+							_id     : makeFakeId(),
+							name    : data.name,
+							css_map : data.css_map
+						}]
+					)
+				}, 3000);
+			}
+		};
+
+		// Export on_sio as on and emit_sio as emit to emulate a real SocketIO object.
+		return { 
+			emit: emit_sio,
+			on : on_sio
+		}
+	}());
 
 
 	return {
-		getPeopleList : getPeopleList
+		getPeopleList : getPeopleList,
+		mockSio : mockSio
 	};
 }());

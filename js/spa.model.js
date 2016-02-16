@@ -53,10 +53,11 @@ spa.model = (function() {
 			anon_user      : null,    // Key in our state map to store the anonymous person object
 			cid_serial	   : 0,		  // serial number used to create this ID from makeCid
 			people_cid_map : {},      // Key in our state map to store a map of person objects keyed by client ID
-			people_db      : TAFFY()  // Key in our state map to store a TaffyDB collection of person objects. Initialize it as an empty collection.
+			people_db      : TAFFY(),  // Key in our state map to store a TaffyDB collection of person objects. Initialize it as an empty collection.
+			user 		   : null
 		},
 		isFakeData = true, // Tells the Model to use the example data, objects, and methods from the Fake module instead of actual data Create a prototype for from the Data module.
-		personProto, makeCid, xlearPeopleDb, completeLogin, makePerson, removePerson, people, initModule,;
+		personProto, makeCid, clearPeopleDb, completeLogin, makePerson, removePerson, people, initModule;
 
 	// The people object API
 	// ---------------------
@@ -111,7 +112,7 @@ spa.model = (function() {
 
 	// Client id generator
 	makeCid = function() {
-		return 'c' = String( stateMap.cid_serial++ );
+		return 'c' + String( stateMap.cid_serial++ );
 	};
 	
 	// Remove all person objects except for the anonymous person and any signed in user.
@@ -129,9 +130,13 @@ spa.model = (function() {
 
 	// Complete user sign-in when the backend sends confirmation and data for the user.
 	completeLogin = function(user_list) {
+
+console.log(user_list);
+
 		var user_map = user_list[0];
 
 		delete stateMap.people_cid_map[user_map.cid];
+
 		stateMap.user.cid                     = user_map._id;
 		stateMap.user.id                      = user_map._id;
 		stateMap.user.css_map                 = user_map.css_map;
@@ -166,14 +171,83 @@ spa.model = (function() {
 		return person;
 	};
 
+	// Remove a person obj rom the people list
 	removePerson = function(person) {
-		//pg 166
+		// If no person and can't remove anonymous person
+		// if (!person || person.id === configMap.anon_id ) { return false; }
+		if ( ! person ) { return false; }
+		if ( person.id === configMap.anon_id ) { return false; }
+
+		stateMap.people_db({ cid : person.cid }).remove();
+
+		if (person.cid) {
+			delete stateMap.people_cid_map[person.cid];
+		}
+
+		return true;
 	};
 
-	people = {
-		get_db      : function() { return stateMap.people_db; },
-		get_cid_map : function() { return stateMap.people_cid_map; }
-	};
+	// people = {
+	// 	get_db      : function() { return stateMap.people_db; },
+	// 	get_cid_map : function() { return stateMap.people_cid_map; }
+	// };
+
+	// People closure so we can share only the methods we want
+	people = (function() {
+		var get_by_cid, get_db, get_user, login, logout;
+
+		// A conveniencde method
+		get_by_cid = function(cid) { return stateMap.people_cid_map[cid]; };
+
+		// Returns the TaffyDB collection of person objects
+		get_db = function() { return stateMap.people_db };
+		
+		// Returns the current user person object
+		get_user = function() { return stateMap.user };
+
+		// No fancy credential checking, just a dumb login
+		login = function(name) {
+			var sio = isFakeData ? spa.fake.mockSio : spa.data.getSio();
+
+			stateMap.user = makePerson({
+				cid : makeCid(),
+				css_map : { top: 25, left: 25, 'background-color': '#8f8' },
+				name : name
+			});
+
+			// Emit a cb to complete sign-in
+			sio.on('userupdate', completeLogin);
+
+			// Send an adduser message to the backend along with all the user details. 
+			// Adding a user and signing in are the same thing in this context
+			sio.emit('adduser', {
+				cid     : stateMap.user.cid,
+				css_map : stateMap.user.css_map,
+				name    : stateMap.user.name
+			});
+		};
+
+		logout = function() {
+			var is_removed,
+				user = stateMap.user;
+
+			// when we add chat, we should leave the chatroom here
+			is_removed    = removePerson(user);
+			stateMap.user = stateMap.anon_user;
+
+			$.gevent.publish('spa-logout', [user]);
+			return is_removed;
+		};
+
+		return {
+			get_by_cid : get_by_cid,
+			get_db : get_db,
+			get_user : get_user,
+			login: login,
+			logout : logout
+		};
+
+	}());
 
 	initModule = function() {
 		var i, people_list, person_map;
@@ -203,10 +277,9 @@ spa.model = (function() {
 
 	};
 
-
 	return {
 		initModule : initModule,
 		people     : people
-		,makePerson: makePerson
+		// ,makePerson : makePerson
 	};
 }());
