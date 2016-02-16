@@ -39,6 +39,7 @@ spa.fake = (function() {
 	mockSio = (function() {
 		var on_sio, 
 			emit_sio,
+			emit_mock_msg,
 			send_listchange,
 			listchange_idto,
 			callback_map = {};
@@ -72,6 +73,37 @@ spa.fake = (function() {
 					// )
 				}, 3000);
 			}
+
+			// Respond to 'updatechat' event with an 'updatechat'
+			// callback after a 2s delay. Echo back user info.
+			if ( msg_type === 'updatechat' && callback_map.updatechat ) {
+				setTimeout (function() {
+					var user = spa.model.people.get_user();
+					callback_map.updatechat([{
+						dest_id   : user.id,
+						dest_name : user.name,
+						sender_id : data.dest_id,
+						msg_text  : 'Thanks for the note, ' + user.name + '.'
+					}]);
+				}, 2000);
+			}
+
+			if ( msg_type === 'leavechat' ) {
+				//reset login status
+				delete callback_map.listchange;
+				delete callback_map.updatechat;
+
+				if ( listchange_idto ) {
+					clearTimeout( listchange_idto );
+					listchange_idto = undefined;
+				}
+
+				send_listchange();
+			}
+		};
+
+		emit_mock_msg = function() {
+			//TODO: start here
 		};
 
 		send_listchange = function() {

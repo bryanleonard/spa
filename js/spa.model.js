@@ -156,9 +156,6 @@ spa.model = (function() {
 	people = (function() {
 		var get_by_cid, get_db, get_user, login, logout;
 
-		// User will automatically exit the chat room once sign-out is complete.
-		chat.leave();
-
 		// A conveniencde method
 		get_by_cid = function(cid) { return stateMap.people_cid_map[cid]; };
 
@@ -193,6 +190,8 @@ spa.model = (function() {
 		logout = function() {
 			var is_removed,
 				user = stateMap.user;
+
+			chat._leave();
 
 			// when we add chat, we should leave the chatroom here
 			is_removed    = removePerson(user);
@@ -266,7 +265,7 @@ spa.model = (function() {
 	//    is provided as data.
 	//
 	chat = (function() {
-		var _publish_listchange, _publish_updatechat
+		var _publish_listchange, _publish_updatechat,
 			_update_list, _leave_chat,
 			get_chatee, join_chat, send_msg, set_chatee,
 			chatee = null;
