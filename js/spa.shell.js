@@ -1,18 +1,19 @@
 spa.shell = (function() {
 
-// Begin callback method /setChatAnchor/
-// Example : setChatAnchor( 'closed' );
-// Purpose : Change the chat component of the anchor
-// Arguments:
-// * position_type - may be 'closed' or 'opened'
-// Action :
-// Changes the URI anchor parameter 'chat' to the requested
-// value if possible.
-// Returns :
-// * true - requested anchor part was updated
-// * false - requested anchor part was not updated
-// Throws : none
-//
+	'use strict';
+	// Begin callback method /setChatAnchor/
+	// Example : setChatAnchor( 'closed' );
+	// Purpose : Change the chat component of the anchor
+	// Arguments:
+	// * position_type - may be 'closed' or 'opened'
+	// Action :
+	// Changes the URI anchor parameter 'chat' to the requested
+	// value if possible.
+	// Returns :
+	// * true - requested anchor part was updated
+	// * false - requested anchor part was not updated
+	// Throws : none
+	//
 
 	// Module scoped vars
 	// --------------------------------------
@@ -25,9 +26,14 @@ spa.shell = (function() {
 			},
 			main_html: String()
 				+ '<section class="spa-shell-head">'
-					+ '<div class="spa-shell-head-logo"></div>'
+					+ '<div class="spa-shell-head-logo">'
+						+ '<h1>SPA</h1>'
+						+ '<p>javascript end to end</p>'
+					+ '</div>'
 					+ '<div class="spa-shell-head-acct"></div>'
-					+ '<div class="spa-shell-head-search"></div>'
+					//+ '<div class="spa-shell-head-logo"></div>'
+					//+ '<div class="spa-shell-head-acct"></div>'
+					//+ '<div class="spa-shell-head-search"></div>'
 				+ '</section>'
 				+ '<section class="spa-shell-main">'
 					+ '<nav class="spa-shell-main-nav"></nav>'
@@ -48,6 +54,9 @@ spa.shell = (function() {
 		changeAnchorPart,
 		onHashchange,
 		onResize,
+		onTapAcct,
+		onLogin,
+		onLogout,
 		setChatAnchor,
 		initModule;
 	
@@ -66,7 +75,9 @@ spa.shell = (function() {
 	setJqueryMap = function() {
 		var $container = stateMap.$container;
 		jqueryMap = { 
-			$container: $container
+			$container : $container,
+			$acct      : $container.find('.spa-shell-head-acct'),
+			$nav       : $container.find('.spa-shell-main-nav')
 		};
 	};
 
@@ -78,7 +89,7 @@ spa.shell = (function() {
 			key_name_dep;
 
 		// Begin marge changes into anchor map 
-		KEYVAL:
+		KEYVAL: // js label
 		for (key_name in arg_map) {
 			if ( arg_map.hasOwnProperty(key_name)) {
 				
@@ -113,6 +124,30 @@ spa.shell = (function() {
 		return bool_return;
 	};
 
+
+	onTapAcct = function(event) {
+		var acct_text,
+			user_name,
+			user = spa.model.people.get_user();
+
+		if (user.get_is_anon())	{
+			user_name = prompt('Please sign in');
+			spa.model.people.login(user_name);
+			jqueryMap.$acct.text('Processing...');
+		}
+		else {
+			spa.model.people.logout();
+		}
+		return false
+	};
+
+	onLogin = function(event, login_user) {
+		jqueryMap.$acct.text(login_user.name);
+	};
+
+	onLogout = function(event, logout_user) {
+		jqueryMap.$acct.text('Please sign in')
+	};
 
 	// Event handlers
 	// --------------------------------------
@@ -229,6 +264,13 @@ spa.shell = (function() {
 			people_model	: spa.model.people
 		});
 		spa.chat.initModule( jqueryMap.$container );
+
+		$.gevent.subscribe($container, 'spa-login', onLogin);
+		$.gevent.subscribe($container, 'spa-logout', onLogout);
+
+		jqueryMap.$acct
+			.text('Please sign in')
+			.bind('utap', onTapAcct);
 
 		// Handle URI anchor change events.
 		// This is done *after* all feature modules are configured and init'd, 

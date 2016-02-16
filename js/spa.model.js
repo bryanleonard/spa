@@ -2,49 +2,11 @@
 //   our instant messaging.
 // * people_model - the people model object which provides methods to interact 
 //   with the list of people the model maintains
-// 164
+
 spa.model = (function() {
 
 	'use strict';
 
-	// The people object API
-	// ---------------------
-	// The people object is available at spa.model.people.
-	// The people object provides methods and events to manage
-	// a collection of person objects. Its public methods include:
-	// * get_user() - return the current user person object.
-	//   If the current user is not signed-in, an anonymous person
-	//   object is returned.
-	// * get_db() - return the TaffyDB database of all the person
-	//   objects - including the current user - pre-sorted.
-	// * get_by_cid( <client_id> ) - return a person object with
-	//   provided unique id.
-	// * login( <user_name> ) - login as the user with the provided
-	//   user name. The current user object is changed to reflect
-	//   the new identity.
-	// * logout()- revert the current user object to anonymous.
-	//
-	// jQuery global custom events published by the object include:
-	// * 'spa-login' is published when a user login process
-	//   completes. The updated user object is provided as data.
-	// * 'spa-logout' is published when a logout completes.
-	//   The former user object is provided as data.
-	//
-	// Each person is represented by a person object.
-	// Person objects provide the following methods:
-	// * get_is_user() - return true if object is the current user
-	// * get_is_anon() - return true if object is anonymous
-	//
-	// The attributes for a person object include:
-	// * cid - string client id. This is always defined, and
-	//   is only different from the id attribute
-	//   if the client data is not synced with the backend.
-	// * id - the unique id. This may be undefined if the
-	//   object is not synced with the backend.
-	// * name - the string name of the user.
-	// * css_map - a map of attributes used for avatar
-	//   presentation.
-	//
 
 	var configMap = {
 			anon_id : 'a0'
@@ -54,10 +16,11 @@ spa.model = (function() {
 			cid_serial	   : 0,		  // serial number used to create this ID from makeCid
 			people_cid_map : {},      // Key in our state map to store a map of person objects keyed by client ID
 			people_db      : TAFFY(),  // Key in our state map to store a TaffyDB collection of person objects. Initialize it as an empty collection.
-			user 		   : null
+			user 		   : null,
+			is_connected   : false
 		},
 		isFakeData = true, // Tells the Model to use the example data, objects, and methods from the Fake module instead of actual data Create a prototype for from the Data module.
-		personProto, makeCid, clearPeopleDb, completeLogin, makePerson, removePerson, people, initModule;
+		personProto, makeCid, clearPeopleDb, completeLogin, makePerson, removePerson, people, chat, initModule;
 
 	// The people object API
 	// ---------------------
@@ -130,8 +93,6 @@ spa.model = (function() {
 
 	// Complete user sign-in when the backend sends confirmation and data for the user.
 	completeLogin = function(user_list) {
-
-console.log(user_list);
 
 		var user_map = user_list[0];
 
@@ -249,6 +210,107 @@ console.log(user_list);
 
 	}());
 
+
+
+
+	// The chat object API
+	// -------------------
+	// The chat object is available at spa.model.chat.
+	// The chat object provides methods and events to manage
+	// chat messaging. Its public methods include:
+	// * join() - joins the chat room. This routine sets up
+	// the chat protocol with the backend including publishers
+	// for 'spa-listchange' and 'spa-updatechat' global
+	// custom events. If the current user is anonymous,
+	// join() aborts and returns false.
+	// ...
+	//
+	// jQuery global custom events published by the object include:
+	// ...
+	// * spa-listchange - This is published when the list of
+	// online people changes in length (i.e. when a person
+	// joins or leaves a chat) or when their contents change
+	// (i.e. when a person's avatar details change).
+	// A subscriber to this event should get the people_db
+	// from the people model for the updated data.
+	// ...
+	//
+	chat = (function() {
+		var _publish_listchange,
+			_update_list,
+			_leave_chat,
+			join_chat;
+
+			//Begin internal methods
+			_update_list = function(arg_list) {
+				var i, 
+					person_map, 
+					make_person_map, 
+					people_list = arg_list[0];
+
+				clearPeopleDb();
+
+				PERSON: // js label
+				for (i=0; i < people_list.length; i++) {
+					person_map = people_list[i];
+
+					if (!person_map.name) { continue PERSON; }
+
+					// if user defined, update css_map anbd skip remainder
+					if (stateMap.user && stateMap.user.id === person_map.id) {
+						stateMap.user.css_map = person_map.css_map;
+						continue PERSON;
+					}
+
+					make_person_map = {
+						cid     : person_map._id,
+						css_map : person_map.css_map,
+						id      : person_map._id,
+						name    : person_map.name
+					};
+
+					makePerson(make_person_map)
+				}
+
+				stateMap.people_db.sort('name');
+			};
+
+			_publish_listchange = function(arg_list) {
+				_update_list(arg_list);
+				$.gevent.publish('spa-listchange', [arg_list]);
+			};
+
+			_leave_chat = function() {
+				var sio = isFakeData ? spa.fake.mockSio : spa.data.getSio();
+
+				stateMap.is_connected = false;
+
+				if (sio) { sio.emit('leavechat'); }
+			};
+
+			join_chat = function() {
+				var sio;
+
+				if (stateMap.is_connected) { return false; }
+
+				if (stateMap.user.get_is_anon()) {
+					console.log('User must be defined before joining chat.');
+					return false;
+				}
+
+				sio = (isFakeData) ? spa.fake.mockSio : spa.data.getSio();
+				sio.on('listchange', _publish_listchange);
+				stateMap.is_connected = true;
+				return true;
+			};
+
+			return {
+				_leave : _leave_chat,
+				join   : join_chat
+			};
+	}());
+
+
 	initModule = function() {
 		var i, people_list, person_map;
 
@@ -259,27 +321,12 @@ console.log(user_list);
 			name : 'anonymous'
 		});
 		stateMap.user = stateMap.anon_user;
-
-		// Get the list of online people from the Fake module and add them to the people_db TaffyDB collection.
-		if ( isFakeData ) {
-			people_list = spa.fake.getPeopleList();
-
-			for (i=0; i < people_list.length; i++) {
-				person_map = people_list[i];
-				makePerson({
-					cid     : person_map._id,
-					css_map : person_map.css_map,
-					id      : person_map._id,
-					name    : person_map.name
-				});
-			}
-		}
-
 	};
 
 	return {
 		initModule : initModule,
-		people     : people
+		people     : people,
+		chat 	   : chat
 		// ,makePerson : makePerson
 	};
 }());
