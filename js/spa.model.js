@@ -103,6 +103,9 @@ spa.model = (function() {
 		stateMap.user.css_map                 = user_map.css_map;
 		stateMap.people_cid_map[user_map._id] = stateMap.user;
 
+		// User will automatically join the chat room once sign-in is complete.
+		chat.join();
+
 		// When we add chat, we should join here
 		$.gevent.publish('spa-login', [stateMap.user]);
 	};
@@ -148,14 +151,13 @@ spa.model = (function() {
 		return true;
 	};
 
-	// people = {
-	// 	get_db      : function() { return stateMap.people_db; },
-	// 	get_cid_map : function() { return stateMap.people_cid_map; }
-	// };
 
 	// People closure so we can share only the methods we want
 	people = (function() {
 		var get_by_cid, get_db, get_user, login, logout;
+
+		// User will automatically exit the chat room once sign-out is complete.
+		chat.leave();
 
 		// A conveniencde method
 		get_by_cid = function(cid) { return stateMap.people_cid_map[cid]; };
