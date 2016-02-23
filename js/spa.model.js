@@ -160,10 +160,10 @@ spa.model = (function() {
 		get_by_cid = function(cid) { return stateMap.people_cid_map[cid]; };
 
 		// Returns the TaffyDB collection of person objects
-		get_db = function() { return stateMap.people_db };
+		get_db = function() { return stateMap.people_db; };
 		
 		// Returns the current user person object
-		get_user = function() { return stateMap.user };
+		get_user = function() { return stateMap.user; };
 
 		// No fancy credential checking, just a dumb login
 		login = function(name) {
@@ -188,14 +188,11 @@ spa.model = (function() {
 		};
 
 		logout = function() {
-			var is_removed,
-				user = stateMap.user;
+			var user = stateMap.user;
 
 			chat._leave();
-
-			// when we add chat, we should leave the chatroom here
-			is_removed    = removePerson(user);
 			stateMap.user = stateMap.anon_user;
+			clearPeopleDb();
 
 			$.gevent.publish('spa-logout', [user]);
 			return is_removed;
@@ -236,11 +233,11 @@ spa.model = (function() {
 	//    If the user is anonymous or the chatee is null, it
 	//    aborts and returns false.
 	//  * update_avatar( <update_avtr_map> ) - send the
-	//    update_avtr_map to the backend. This results in an
-	//    'spa-listchange' event which publishes the updated
-	//    people list and avatar information (the css_map in the
-	//    person objects). The update_avtr_map must have the form
-	//    { person_id : person_id, css_map : css_map }.
+	// update_avtr_map to the backend. This results in an
+	// an 'spa-listchange' event which publishes the updated
+	// people list and avatar information (the css_map in the
+	// person objects). The update_avtr_map must
+	// have the form { person_id : person_id, css_map : css_map }
 	//
 	// jQuery global custom events published by the object include:
 	//  * spa-setchatee - This is published when a new chatee is
@@ -268,13 +265,12 @@ spa.model = (function() {
 		var _publish_listchange, _publish_updatechat,
 			_update_list, _leave_chat,
 			get_chatee, join_chat, send_msg, set_chatee,
+			update_avatar,
 			chatee = null;
 
 			//Begin internal methods
 			_update_list = function(arg_list) {
-				var i, 
-					person_map, 
-					make_person_map, 
+				var i, person_map, make_person_map, person,
 					people_list = arg_list[0],
 					is_chatee_online = false;
 
@@ -287,7 +283,7 @@ spa.model = (function() {
 					if (!person_map.name) { continue PERSON; }
 
 					// if user defined, update css_map anbd skip remainder
-					if (stateMap.user && stateMap.user.id === person_map.id) {
+					if (stateMap.user && stateMap.user.id === person_map._id) {
 						stateMap.user.css_map = person_map.css_map;
 						continue PERSON;
 					}
@@ -299,8 +295,11 @@ spa.model = (function() {
 						name    : person_map.name
 					};
 
+					person = makePerson( make_person_map );
+
 					if ( chatee && chatee.id === make_person_map.id ) {
 						is_chatee_online = true;
+						chatee = person;
 					}
 
 					makePerson(make_person_map);
@@ -326,6 +325,8 @@ spa.model = (function() {
 				else if ( msg_map.sender_id !== stateMap.user.id && msg_map.sender_id !== chatee.id) {
 					set_chatee( msg_map.sender_id );
 				}
+
+				$.gevent.publish( 'spa-updatechat', [ msg_map ] );
 			};
 
 			_leave_chat = function() {
@@ -350,7 +351,7 @@ spa.model = (function() {
 
 				sio = (isFakeData) ? spa.fake.mockSio : spa.data.getSio();
 				sio.on('listchange', _publish_listchange);
-				sio.on('updatechat', _publixh_updatechat);
+				sio.on('updatechat', _publish_updatechat);
 				stateMap.is_connected = true;
 				return true;
 			};
@@ -367,12 +368,12 @@ spa.model = (function() {
 				msg_map = {
 					dest_id   : chatee.id,
 					dest_name : chatee.name,
-					sender_id : stateMap.juser.id,
+					sender_id : stateMap.user.id,
 					msg_text  : msg_text
 				};
 
 				// we published updatechat so we can show our outgoing messages
-				_publish_update( [msg_map] );
+				_publish_updatechat( [msg_map] );
 				sio.emit('updatechat', msg_map);
 				return true;
 			};
@@ -399,14 +400,25 @@ spa.model = (function() {
 				return true;
 			};
 
+			update_avatar = function( avatar_update_map ) {
+				var sio = (isFakeData) ? spa.fake.mockSio : spa.data.getSio();
+
+				if (sio) {
+					sio.emit('updateavatar', avatar_update_map);
+				}
+			};
+
 			return {
-				_leave     : _leave_chat,
-				get_chatee : get_chatee,
-				join       : join_chat,
-				send_msg   : send_msg,
-				set_chatee : set_chatee
+				_leave        : _leave_chat,
+				get_chatee    : get_chatee,
+				join          : join_chat,
+				send_msg      : send_msg,
+				set_chatee    : set_chatee,
+				update_avatar : update_avatar
 			};
 	}());
+
+
 
 
 	initModule = function() {

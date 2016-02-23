@@ -50,7 +50,7 @@ spa.fake = (function() {
 
 		// emulates sending a message to the server
 		emit_sio = function(msg_type, data) {
-			var person_map;
+			var person_map, i;
 
 			// respond to 'adduser' even with 'userupdate' cb after a 3s delay
 			if (msg_type === 'adduser' && callback_map.userupdate) {
@@ -100,16 +100,47 @@ spa.fake = (function() {
 
 				send_listchange();
 			}
+
+			//simulate send of 'updateavatar' message and data to server
+			if (msg_type === 'updateavatar' && callback_map.listchange) {
+				//simulate receipt f 'listchange' message
+				for (i=0; i < peopleList.length; i++) {
+					if ( peopleList[i]._id === data.person_id ) {
+						peopleList[i].css_map = data.css_map;
+						break;
+					}
+				}
+
+				// execute callback for the 'listchange' message
+				callback_map.listchange([peopleList]);
+			}
 		};
 
 		emit_mock_msg = function() {
-			//TODO: start here
+			// Try to send a mock message to signed in user every 8 secs. On success, the routine stops itself
+			setTimeout( function() {
+				var user = spa.model.people.get_user();
+
+				if (callback_map.updatechat) {
+					callback_map.updatechat([{
+						dest_id   : user.id,
+						dest_name : user.name,
+						sender_id : 'id_04',
+						msg_text  : 'Hi there, ' + user.name + '! This is ' + peopleList[3].name
+					}]);
+				}
+				else {
+					emit_mock_msg();
+				}
+			}, 8000);
+
 		};
 
 		send_listchange = function() {
 			listchange_idto = setTimeout( function() {
 				if (callback_map.listchange) {
 					callback_map.listchange([peopleList]);
+					emit_mock_msg();
 					listchange_idto = undefined;
 				}
 				else {
