@@ -213,7 +213,7 @@ spa.chat = (function() {
 	scrollChat = function() {
 		var $msg_log = jqueryMap.$msg_log;
 		$msg_log.velocity({
-			scrollTop: $msg_log.prop('scrollHeight') - $msg_log.height();
+			scrollTop: $msg_log.prop('scrollHeight') - $msg_log.height()
 		}, 150);
 	};
 
@@ -229,11 +229,11 @@ spa.chat = (function() {
 	};
 
 	writeAlert = function(alert_text) {
-		jqueryMap.$msg_log.append({
+		jqueryMap.$msg_log.append(
 			'<div class="spa-chat-msg-log-alert">'
-			+ spa-chat.util_b.encodeHtml(alert_text)
+			+ spa.chat.util_b.encodeHtml(alert_text)
 			+ '</div>'	
-		});
+		);
 		scrollChat();
 	};
 
