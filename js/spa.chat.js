@@ -182,7 +182,7 @@ spa.chat = (function() {
 
 			case 'closed' :
 				height_px    = stateMap.slider_closed_px;
-				animate_time = stateMap.slider_close_time;
+				animate_time = configMap.slider_close_time;
 				slider_title = configMap.slider_closed_title;
 				toggle_text  = '+';
 			break;
@@ -195,6 +195,7 @@ spa.chat = (function() {
 		stateMap.position_type = '';
 		jqueryMap.$slider.velocity(
 			{ height: height_px },
+			animate_time,
 			function() {
 				jqueryMap.$toggle.prop('title', slider_title);
 				jqueryMap.$toggle.text( toggle_text );
@@ -231,7 +232,7 @@ spa.chat = (function() {
 	writeAlert = function(alert_text) {
 		jqueryMap.$msg_log.append(
 			'<div class="spa-chat-msg-log-alert">'
-			+ spa.chat.util_b.encodeHtml(alert_text)
+			+ spa.util_b.encodeHtml(alert_text)
 			+ '</div>'	
 		);
 		scrollChat();
@@ -254,7 +255,7 @@ spa.chat = (function() {
 		}
 
 		return false;
-	}
+	};
 
 
 	onSubmitMsg = function(event) {
