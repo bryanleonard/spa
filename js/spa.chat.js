@@ -251,7 +251,7 @@ spa.chat = (function() {
 			set_chat_anchor('closed');
 		}
 		else if ( stateMap.position_type === 'closed') {
-			set_chat_anchor('opened')
+			set_chat_anchor('opened');
 		}
 
 		return false;
