@@ -185,7 +185,7 @@ spa.model = (function() {
 				css_map : stateMap.user.css_map,
 				name    : stateMap.user.name
 			});
-		};
+		}; 
 
 		logout = function() {
 			var user = stateMap.user;
@@ -195,7 +195,6 @@ spa.model = (function() {
 			clearPeopleDb();
 
 			$.gevent.publish('spa-logout', [user]);
-			return is_removed;
 		};
 
 		return {
