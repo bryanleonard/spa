@@ -6,13 +6,13 @@ spa.chat = (function() {
 	// --------------------------------------
 	var configMap = {
 			main_html: String()
-				+ '<div class="spa-chat">'
-					+ '<div class="spa-chat-head">'
-						+ '<div class="spa-chat-head-toggle">+</div>'
+				+ '<section class="spa-chat">'
+					+ '<header class="spa-chat-head">'
+						+ '<div class="spa-chat-head-toggle">▲</div>'
 						+ '<div class="spa-chat-head-title">'
 							+ 'Chat'
 						+ '</div>'
-					+ '</div>'
+					+ '</header>'
 					+ '<div class="spa-chat-closer">&times;</div>'
 					+ '<div class="spa-chat-sizer">'
 						+ '<div class="spa-chat-list">'
@@ -29,7 +29,7 @@ spa.chat = (function() {
 							+ '</div>'
 						+ '</div>'
 					+ '</div>'
-				+ '</div>',
+				+ '</section>',
 
 			      settable_map : {
 						slider_open_time    : true,
@@ -169,7 +169,7 @@ spa.chat = (function() {
 				height_px    = stateMap.slider_opened_px;
 				animate_time = configMap.slider_open_time;
 				slider_title = configMap.slider_opened_title;
-				toggle_text  = "=";
+				toggle_text  = "▼";
 				jqueryMap.$input.focus();
 			break;
 
@@ -177,14 +177,14 @@ spa.chat = (function() {
 				height_px    = 0;
 				animate_time = configMap.slider_open_time;
 				slider_title = '';
-				toggle_text  = '+';
+				toggle_text  = '▲';
 			break;
 
 			case 'closed' :
 				height_px    = stateMap.slider_closed_px;
 				animate_time = configMap.slider_close_time;
 				slider_title = configMap.slider_closed_title;
-				toggle_text  = '+';
+				toggle_text  = '▲';
 			break;
 
 			default : // bail for unknown position_type
@@ -193,7 +193,7 @@ spa.chat = (function() {
 
 		// animate slider position change
 		stateMap.position_type = '';
-		jqueryMap.$slider.velocity(
+		jqueryMap.$slider.animate(
 			{ height: height_px },
 			animate_time,
 			function() {
