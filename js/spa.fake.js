@@ -30,7 +30,7 @@ spa.fake = (function() {
 			css_map : { top: 100, left: 20, 'background-color' : 'rgb( 128, 192, 192)'  }
 		},
 		{ 
-			name : 'Bryan',
+			name : 'Wiggles',
 			_id : 'id_04',
 			css_map : { top: 140, left: 20, 'background-color' : 'rgb( 192, 128, 128)' }
 		}

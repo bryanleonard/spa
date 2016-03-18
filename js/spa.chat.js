@@ -88,9 +88,6 @@ spa.chat = (function() {
 			$toggle   : $slider.find('.spa-chat-head-toggle'),
 			$title    : $slider.find('.spa-chat-head-title'),
 			$sizer    : $slider.find('.spa-chat-sizer'),
-			$msgs     : $slider.find('.spa-chat-msgs'),
-			$box      : $slider.find('.spa-chat-box'),
-			$input    : $slider.find('.spa-chat-input input[type=text]'),
 			$list_box : $slider.find( '.spa-chat-list-box' ),
 			$msg_log  : $slider.find( '.spa-chat-msg-log' ),
 			$msg_in   : $slider.find( '.spa-chat-msg-in' ),
@@ -148,7 +145,7 @@ spa.chat = (function() {
 			slider_title,
 			toggle_text;
 
-		// position_type of "opened" is not allowed for anon user.
+		// position_type of "opened" is not allowed for anon user
 		// therefore we return false; the sehll will fix the uri and try again
 		if ( position_type === 'opened' 
 				&& configMap.people_model.get_user().get_is_anon() ) {
@@ -232,7 +229,7 @@ spa.chat = (function() {
 	writeAlert = function(alert_text) {
 		jqueryMap.$msg_log.append(
 			'<div class="spa-chat-msg-log-alert">'
-			+ spa.util_b.encodeHtml(alert_text)
+				+ spa.util_b.encodeHtml(alert_text)
 			+ '</div>'	
 		);
 		scrollChat();
@@ -255,9 +252,7 @@ spa.chat = (function() {
 		}
 
 		return false;
-	};
-
-
+	
 	onSubmitMsg = function(event) {
 		var msg_text = jqueryMap.$input.val();
 		if ( msg_text.trim() === '' ) { return false };
@@ -289,6 +284,111 @@ spa.chat = (function() {
 
 		configMap.chat_model.set_chatee( chatee_id );
 		return false;
+	};
+
+
+	// selects the new chatee and deselects the old one. It also changes the 
+	// chat slider title and notifies the user that the chatee has changed.
+	onSetchatee = function( evt, arg_map ) {
+		var new_chatee = arg_map.new_chatee,
+			old_chatee = arg_map.old_chatee;
+
+		jqueryMap.$input.focus();
+
+		if (!new_chatee) {
+			if (old_chatee) {
+				writeAlert(old_chatee.name + ' has left the chat')
+			} 
+			else {
+				writeAlert('Your friend has left the chat')
+			}
+			jqueryMap.$title.text('Chat');
+			return false;
+		}
+
+		jqueryMap.$list_box
+			.find('.spa-chat-list-name')
+			.removeClass('spa-x-select')
+			.end()
+			.find('[data-id=' + arg.mapnew_chatee.id + ']')
+			.addClass('spac-x-select');
+
+		writeAlert('Now chatting with ' + arg_map.new_chatee.name);
+		jqueryMap.$title.text('Chat with ' + arg_map.new_chatee.name);
+
+		return true;
+	};
+
+	//gets the current people collection and renders the people list, making 
+	// sure the chatee is highlighted if defined
+	onListchange = function(evt) {
+		var vlist_html = String(),
+			people_db  = configMap.people_model.get_db(),
+			chatee = configMap.chat_model.get_chatee();
+
+		people_db.each(function(person, idx) {
+			var select_class = '';
+
+			if (person.get_is_anon() || person.get_is_user() ) {
+				return true;
+			}
+
+			if (chatee && chatee.id === person.id) {
+				select_class = 'spa-x-select';
+			}
+
+			list_html
+				+= '<div class="spa-chat-list-name'
+				+ select_class + '" data-id="' + person.id + '">'
+				+ spa.util_b.encodeHtml( person.name ) + '</div>';
+		});
+
+		if ( !list_html ) {
+			list_html = String()
+			+ '<div class="spa-chat-list-note">'
+			+ 'To chat alone is the fate of all great souls...<br><br>'
+			+ 'No one is online'
+			+ '</div>';
+			clearChat();
+		}
+
+		jqueryMap.$list_box.html( list_html );
+	};
+
+	onUpdatechat = function(evt, msg_map) {
+		var is_user,
+			sender_id = msg_map.sender_id,
+			msg_text = msg_map.msg_text,
+			chatee = configMap.chat_model.get_chatee() || {},
+			sender = configMap.people_model.get_by_cid(sender_id);
+
+		if ( !sender ) {
+			writeAlert( msg_text );
+			return false;
+		}
+
+		is_user = sender.get_is_user();
+
+		if ( !is_user || sender_id === chatee.id ) {
+			configMap.chat_model.set_chatee( sender_id );
+		}
+
+		writeChat(sender.name, msg_text, is_user );
+
+		if ( is_user) {
+			jqueryMap.$input.val('');
+			jqueryMap.$input.focus();
+		}
+	};
+
+	onLogin = function( evt, login_user ) {
+		configMap.set_chat_anchor('opened')
+	};
+
+	onLogout = function( evt, logoiut_user ) {
+		configMap.set_chat_anchor('closed');
+		jqueryMap.#title.text('Chat');
+		clearChat();
 	};
 
 
