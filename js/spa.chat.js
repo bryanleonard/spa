@@ -104,7 +104,9 @@ spa.chat = (function() {
 			window_height_em;
 
 		px_per_em = spa.util_b.getEmSize( jqueryMap.$slider.get(0) );
-		window_height_em = Math.floor( jqueryMap.$window.height() / px_per_em ) + 0.5;
+		window_height_em = Math.floor(
+			( jqueryMap.$window.height() / px_per_em ) + 0.5
+		);
 		opened_height_em = ( window_height_em > configMap.window_height_min_em )
 			? configMap.slider_opened_em
 			: configMap.slider_opened_min_em;
@@ -184,8 +186,8 @@ spa.chat = (function() {
 				toggle_text  = '▲';
 			break;
 
-			default : // bail for unknown position_type
-				return false;
+			// bail for unknown position_type
+			default : return false;
 		}
 
 		// animate slider position change
@@ -252,17 +254,18 @@ spa.chat = (function() {
 		}
 
 		return false;
+	};
 	
 	onSubmitMsg = function(event) {
 		var msg_text = jqueryMap.$input.val();
-		if ( msg_text.trim() === '' ) { return false };
+		if ( msg_text.trim() === '' ) { return false; }
 
 		configMap.chat_model.send_msg( msg_text );
 		jquerymap.$input.focus();
 		jqueryMap.$send.addClass( 'spa-x-select' );
 
 		setTimeout(function() {
-			jqueryMap.$send.removeClass('spa-x-select')
+			jqueryMap.$send.removeClass('spa-x-select');
 		}, 250);
 
 		return false;
@@ -297,10 +300,10 @@ spa.chat = (function() {
 
 		if (!new_chatee) {
 			if (old_chatee) {
-				writeAlert(old_chatee.name + ' has left the chat')
+				writeAlert( old_chatee.name + ' has left the chat' );
 			} 
 			else {
-				writeAlert('Your friend has left the chat')
+				 writeAlert( 'Your friend has left the chat' );
 			}
 			jqueryMap.$title.text('Chat');
 			return false;
@@ -310,8 +313,8 @@ spa.chat = (function() {
 			.find('.spa-chat-list-name')
 			.removeClass('spa-x-select')
 			.end()
-			.find('[data-id=' + arg.mapnew_chatee.id + ']')
-			.addClass('spac-x-select');
+			.find('[data-id=' + arg_map.new_chatee.id + ']')
+			.addClass('spa-x-select');
 
 		writeAlert('Now chatting with ' + arg_map.new_chatee.name);
 		jqueryMap.$title.text('Chat with ' + arg_map.new_chatee.name);
@@ -322,11 +325,11 @@ spa.chat = (function() {
 	//gets the current people collection and renders the people list, making 
 	// sure the chatee is highlighted if defined
 	onListchange = function(evt) {
-		var vlist_html = String(),
+		var list_html = String(),
 			people_db  = configMap.people_model.get_db(),
 			chatee = configMap.chat_model.get_chatee();
 
-		people_db.each(function(person, idx) {
+		people_db().each(function(person, idx) {
 			var select_class = '';
 
 			if (person.get_is_anon() || person.get_is_user() ) {
@@ -369,7 +372,7 @@ spa.chat = (function() {
 
 		is_user = sender.get_is_user();
 
-		if ( !is_user || sender_id === chatee.id ) {
+		if ( ! ( is_user || sender_id === chatee.id ) ) {
 			configMap.chat_model.set_chatee( sender_id );
 		}
 
@@ -382,12 +385,12 @@ spa.chat = (function() {
 	};
 
 	onLogin = function( evt, login_user ) {
-		configMap.set_chat_anchor('opened')
+		configMap.set_chat_anchor('opened');
 	};
 
-	onLogout = function( evt, logoiut_user ) {
+	onLogout = function( evt, logout_user ) {
 		configMap.set_chat_anchor('closed');
-		jqueryMap.#title.text('Chat');
+		jqueryMap.$title.text('Chat');
 		clearChat();
 	};
 
@@ -441,17 +444,30 @@ spa.chat = (function() {
 	// Throws : none
 	//
 	initModule = function($append_target) {
-		$append_target.append( configMap.main_html );
+		var $list_box;
+
 		stateMap.$append_target = $append_target;
+		$append_target.append( configMap.main_html );
 		setJqueryMap();
 		setPxSizes();
 
 		// init chat slider to default title and state
 		jqueryMap.$toggle.prop('title', configMap.slider_closed_title );
-		jqueryMap.$head.click(onTapToggle);
 		stateMap.position_type = 'closed';
-		
-		return true;
+
+		// Have $list_box subscribe to jQuery global events
+		$list_box = jqueryMap.$list_box;
+		$.gevent.subscribe( $list_box, 'spa-listchange', onListchange );
+		$.gevent.subscribe( $list_box, 'spa-setchatee',  onSetchatee );
+		$.gevent.subscribe( $list_box, 'spa-updatechat', onUpdatechat );
+		$.gevent.subscribe( $list_box, 'spa-login',      onLogin );
+		$.gevent.subscribe( $list_box, 'spa-logout',     onLogout );
+
+		// bind user input events
+		jqueryMap.$head.bind(     'utap', onTapToggle );
+		jqueryMap.$list_box.bind( 'utap', onTapList );
+		jqueryMap.$send.bind(     'utap', onSubmitMsg );
+		jqueryMap.$form.bind(   'submit', onSubmitMsg );
 	};
 
 	// Begin public method /removeSlider/
@@ -467,10 +483,10 @@ spa.chat = (function() {
 		// unwind initialization and state
 		// remove DOM container; removes event bindings too
 		if (jqueryMap.$slider) {
-			jqueryMap.$slider.slideUp(function() {
+			//jqueryMap.$slider.slideUp(function() {
 				jqueryMap.$slider.remove();
 				jqueryMap = {};
-			});
+			//});
 		}
 
 		stateMap.$append_target = null;
@@ -488,7 +504,7 @@ spa.chat = (function() {
 	// Purpose :
 	//  	Given a window resize event, adjust the presentation by this module if needed.
 	// Actions:
-	// 		If the window height or width falls below a given threshold, resie the chat slider for the reduce window size.
+	// 		If the window height or width falls below a given threshold, resize the chat slider for the reduce window size.
 	// Returns: boolean
 	//  	false - resize not considered
 	//  	true - resize considered
