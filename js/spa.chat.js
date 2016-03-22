@@ -261,7 +261,7 @@ spa.chat = (function() {
 		if ( msg_text.trim() === '' ) { return false; }
 
 		configMap.chat_model.send_msg( msg_text );
-		jquerymap.$input.focus();
+		jqueryMap.$input.focus();
 		jqueryMap.$send.addClass( 'spa-x-select' );
 
 		setTimeout(function() {

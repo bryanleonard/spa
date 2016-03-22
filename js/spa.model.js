@@ -20,7 +20,8 @@ spa.model = (function() {
 			is_connected   : false
 		},
 		isFakeData = true, // Tells the Model to use the example data, objects, and methods from the Fake module instead of actual data Create a prototype for from the Data module.
-		personProto, makeCid, clearPeopleDb, completeLogin, makePerson, removePerson, people, chat, initModule;
+		personProto, makeCid, clearPeopleDb, completeLogin, 
+		makePerson, removePerson, people, chat, initModule;
 
 	// The people object API
 	// ---------------------
@@ -301,7 +302,6 @@ spa.model = (function() {
 						chatee = person;
 					}
 
-					makePerson(make_person_map);
 				}
 
 				stateMap.people_db.sort('name');

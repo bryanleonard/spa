@@ -31,7 +31,7 @@ spa.util_b = (function() {
 	encodeHtml = function(input_arg_str, exclude_map) {
 		var input_str = String(input_arg_str),
 			regex,
-			lookup;
+			lookup_map;
 
 		if (exclude_map) {
 			lookup_map = configMap.encode_noamp_map;
