@@ -94,8 +94,74 @@ spa.avtr = (function() {
 	};
 
 	onHeldmoveNav = function(evt) {
-		//pg 217
+		var $drag_target = statemap.$drag_target;
+
+		if ( !$drag_target ) {
+			return false;
+		}
+
+		$drag_target
+			.removeClass('spa-x-is-drag')
+			.css('background-color', stateMap.drag_bg_color);
+
+		stateMap.drag_bg_color = undefined;
+		stateMap.$drag_target  = null;
+		stateMap.drag_map      = null;
+		updateAvatar( $drag_target );
 	};
+
+	onSetchatee = function( evt, arg_map ) {
+		var $nav = $(this),
+			new_chatee = arg_map.new_chatee,
+			old_chatee = arg_map.old_chatee;
+
+		// Use this to highlight avatar of user in nav area
+		// See new_chatee.name, old_chatee.name, etc.
+		// remove highlight from old_chatee avatar here
+		if ( old_chatee ) {
+			$nav
+				.find('.spa-avtr-box[data-id=' + old_chatee.cid + ']')
+				.removeClass( 'spa-x-is-chatee' );
+		}
+
+		// Add highlight to new_chatee avatar here
+		if (new_chatee) {
+			.find( '.spa-avtr-box[data-id=' + new_chatee.cid + ']' )
+			.addClass('spa-x-is-chatee');
+		}
+	};
+
+	// Invoked when the Model publishes a spa-listchange event. In this 
+	// module, we redraw the avatars.
+	onListchange = function( evt ) {
+		var $nav      = $(this),
+			people_db = configMap.people_model.get_db(),
+			user      = configMap.people_model.get_user(),
+			chatee    = configMap.chate_model.get_chatee() || {},
+			$box;
+
+		$nav.empty();
+
+		// if user is logged out, do not render
+		if (user.get_is_anon()) {
+			return false;
+		}
+
+		people_db().each( function( person, index) {
+			var class_list;
+
+			if (person.get_is_anon()) {
+				return true
+			}
+
+			class_list = ['spa-avtr-box'];
+
+			if ( person.id === chatee.id ){
+				class_list.push('spa-x-is-chatee');
+			}
+		});
+	};
+
 
 	return {};
 }());
