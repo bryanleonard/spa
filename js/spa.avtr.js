@@ -161,11 +161,11 @@ spa.avtr = (function() {
 			}
 
 			if ( person.get_is_user() ) {
-				class+list.push( 'spa-x-is-user' );
+				class_list.push( 'spa-x-is-user' );
 			}
 
 			$box = $('div/>')
-				.addClass(class.list.join(' '))
+				.addClass(class_list.join(' '))
 				.css(person.css_map)
 				.attr('data-id', String(person.id))
 				.prop('title', spa.util_b.encodeHtml(person.name))
@@ -198,7 +198,7 @@ spa.avtr = (function() {
 
 		// Bind model global events
 		$.gevent.subscribe( $container, 'spa-setchatee', onSetchatee );
-		$.gevent.subscribe( $container, 'spa-listchange' onListchange );
+		$.gevent.subscribe( $container, 'spa-listchange', onListchange );
 		$.gevent.subscribe( $container, 'spa-logout', onLogout );
 
 		// Bind actions, yo
@@ -216,5 +216,5 @@ spa.avtr = (function() {
 		configModule: configModule,
 		initModule: initModule
 	};
-	
+
 }());
