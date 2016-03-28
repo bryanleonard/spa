@@ -126,13 +126,13 @@ spa.avtr = (function() {
 
 		// Add highlight to new_chatee avatar here
 		if (new_chatee) {
-			.find( '.spa-avtr-box[data-id=' + new_chatee.cid + ']' )
-			.addClass('spa-x-is-chatee');
+			$nav.find( '.spa-avtr-box[data-id=' + new_chatee.cid + ']' )
+				.addClass('spa-x-is-chatee');
 		}
 	};
 
-	// Invoked when the Model publishes a spa-listchange event. In this 
-	// module, we redraw the avatars.
+	// Invoked when the Model publishes a spa-listchange event. 
+	// In this module, we redraw the avatars.
 	onListchange = function( evt ) {
 		var $nav      = $(this),
 			people_db = configMap.people_model.get_db(),
@@ -159,9 +159,62 @@ spa.avtr = (function() {
 			if ( person.id === chatee.id ){
 				class_list.push('spa-x-is-chatee');
 			}
+
+			if ( person.get_is_user() ) {
+				class+list.push( 'spa-x-is-user' );
+			}
+
+			$box = $('div/>')
+				.addClass(class.list.join(' '))
+				.css(person.css_map)
+				.attr('data-id', String(person.id))
+				.prop('title', spa.util_b.encodeHtml(person.name))
+				.text(person.name)
+				.appendTo($nav);
 		});
 	};
 
+	onLogout = function() {
+		jqueryMap.$container.empty();
+	};
 
-	return {};
+
+	// Begin Public Methods
+	// --------------------------------------
+	//Configure the module prior to initialization,
+	// values we do not expect to change during a user session.
+	configModule = function( input_map) {
+		spa.util.setConfigMap({
+			input_map: input_map,
+			settable_map: configMap.settable_map,
+			config_map: configMap
+		});
+
+		return true;
+	};
+
+	initModule = function( $container ) {
+		setJquerymap($container);
+
+		// Bind model global events
+		$.gevent.subscribe( $container, 'spa-setchatee', onSetchatee );
+		$.gevent.subscribe( $container, 'spa-listchange' onListchange );
+		$.gevent.subscribe( $container, 'spa-logout', onLogout );
+
+		// Bind actions, yo
+		// Binding before the Model events could result in a race condition.
+		$container
+			.bind('utap', onTapNav)
+			.bind('uheldstart', onHeldstartNav)
+			.bind('uheldmove', onHeldmoveNav)
+			.bind('uheldend', onHeldendNav);
+
+		return true;
+	};
+
+	return {
+		configModule: configModule,
+		initModule: initModule
+	};
+	
 }());
