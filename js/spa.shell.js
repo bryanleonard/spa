@@ -262,6 +262,14 @@ spa.shell = (function() {
 		});
 		spa.chat.initModule( jqueryMap.$container );
 
+		// Configure the feature module
+		spa.avtr.configModule({
+			chat_model: spa.model.chat,
+			people_model: spa.model.people
+		});
+		// Then initialize it
+		spa.avtr.initModule( jqueryMap.$nav );
+
 		$.gevent.subscribe($container, 'spa-login', onLogin);
 		$.gevent.subscribe($container, 'spa-logout', onLogout);
 

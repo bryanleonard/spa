@@ -14,7 +14,7 @@ spa.avtr = (function() {
 		stateMap = {
 			drag_map : null,
 			$drag_target : null,
-			drag_cbg_color: undefined
+			drag_bg_color: undefined
 		},
 		jqueryMap = {},
 
@@ -42,7 +42,7 @@ spa.avtr = (function() {
 	// --------------------------------------
 	setJqueryMap = function( $container) {
 		jqueryMap = { $container : $container };
-	}
+	};
 
 	updateAvatar = function( $targ ) {
 		var css_map, person_id;
@@ -54,7 +54,10 @@ spa.avtr = (function() {
 		};
 
 		person_id = $targ.attr('data-id');
-	}
+		configMap.chat_model.update_avatar({
+			person_id : person_id, css_map : css_map
+		});
+	};
 
 	// Begin Event Handlers
 	// --------------------------------------
@@ -86,7 +89,7 @@ spa.avtr = (function() {
 		offset_target_map.left -= offset_nav_map.left;
 
 		stateMap.drag_map = offset_target_map;
-		stateMap.drag_bg_color = $target.css('background-color');
+		stateMap.drag_bg_color = $targ.css('background-color');
 
 		$targ
 			.addClass('spa-x-is-drag')
@@ -137,7 +140,7 @@ spa.avtr = (function() {
 		var $nav      = $(this),
 			people_db = configMap.people_model.get_db(),
 			user      = configMap.people_model.get_user(),
-			chatee    = configMap.chate_model.get_chatee() || {},
+			chatee    = configMap.chat_model.get_chatee() || {},
 			$box;
 
 		$nav.empty();
@@ -164,7 +167,7 @@ spa.avtr = (function() {
 				class_list.push( 'spa-x-is-user' );
 			}
 
-			$box = $('div/>')
+			$box = $('<div/>')
 				.addClass(class_list.join(' '))
 				.css(person.css_map)
 				.attr('data-id', String(person.id))
@@ -194,7 +197,7 @@ spa.avtr = (function() {
 	};
 
 	initModule = function( $container ) {
-		setJquerymap($container);
+		setJqueryMap($container);
 
 		// Bind model global events
 		$.gevent.subscribe( $container, 'spa-setchatee', onSetchatee );
@@ -204,10 +207,10 @@ spa.avtr = (function() {
 		// Bind actions, yo
 		// Binding before the Model events could result in a race condition.
 		$container
-			.bind('utap', onTapNav)
-			.bind('uheldstart', onHeldstartNav)
-			.bind('uheldmove', onHeldmoveNav)
-			.bind('uheldend', onHeldendNav);
+			.bind( 'utap', onTapNav )
+			.bind( 'uheldstart', onHeldstartNav )
+			.bind( 'uheldmove', onHeldmoveNav )
+			.bind( 'uheldend', onHeldendNav );
 
 		return true;
 	};
