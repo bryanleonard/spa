@@ -154,7 +154,7 @@ spa.chat = (function() {
 			return false;
 		}
 
-		// return true if slider is alread in requested position
+    		// return true if slider already in requested position
 		if (stateMap.position_type === position_type) {
 			if ( position_type === 'opened' ) {
 				jqueryMap.$input.focus();
@@ -337,7 +337,7 @@ spa.chat = (function() {
 			}
 
 			if (chatee && chatee.id === person.id) {
-				select_class = 'spa-x-select';
+				select_class = ' spa-x-select';
 			}
 
 			list_html

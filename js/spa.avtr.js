@@ -97,7 +97,20 @@ spa.avtr = (function() {
 	};
 
 	onHeldmoveNav = function(evt) {
-		var $drag_target = statemap.$drag_target;
+		var drag_map = stateMap.drag_map;
+		
+		if ( ! drag_map ){ return false; }
+
+		drag_map.top  += event.px_delta_y;
+		drag_map.left += event.px_delta_x;
+
+		stateMap.$drag_target.css({
+			top : drag_map.top, left : drag_map.left
+		});
+	};
+
+	onHeldendNav = function ( event ) {
+		var $drag_target = stateMap.$drag_target;
 
 		if ( !$drag_target ) {
 			return false;
@@ -154,7 +167,7 @@ spa.avtr = (function() {
 			var class_list;
 
 			if (person.get_is_anon()) {
-				return true
+				return true;
 			}
 
 			class_list = ['spa-avtr-box'];

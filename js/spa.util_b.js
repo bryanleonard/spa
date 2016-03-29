@@ -16,7 +16,7 @@ spa.util_b = (function() {
 		decodeHtml, encodeHtml, getEmSize;
 
 	// Create a modified copy of the configuration used to encode entities.
-	configMap.encode_noamp_map = $.extend({}, configMap.html_encode_map)
+	configMap.encode_noamp_map = $.extend({}, configMap.html_encode_map);
 	// But remove the ampersand
 	delete configMap.encode_noamp_map['&'];
 
@@ -28,12 +28,11 @@ spa.util_b = (function() {
 
 
 	// This is single pass encoder for html entities and handles an arbitrary number of characters
-	encodeHtml = function(input_arg_str, exclude_map) {
+	encodeHtml = function(input_arg_str, exclude_amp) {
 		var input_str = String(input_arg_str),
-			regex,
-			lookup_map;
+			regex, lookup_map;
 
-		if (exclude_map) {
+    		if ( exclude_amp ) {
 			lookup_map = configMap.encode_noamp_map;
 			regex 	   = configMap.regex_encode_noamp;
 		}
