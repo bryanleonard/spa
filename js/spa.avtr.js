@@ -101,8 +101,8 @@ spa.avtr = (function() {
 		
 		if ( ! drag_map ){ return false; }
 
-		drag_map.top  += event.px_delta_y;
-		drag_map.left += event.px_delta_x;
+		drag_map.top  += evt.px_delta_y;
+		drag_map.left += evt.px_delta_x;
 
 		stateMap.$drag_target.css({
 			top : drag_map.top, left : drag_map.left
