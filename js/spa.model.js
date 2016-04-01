@@ -19,7 +19,7 @@ spa.model = (function() {
 			user 		   : null,
 			is_connected   : false
 		},
-		isFakeData = true, // Tells the Model to use the example data, objects, and methods from the Fake module instead of actual data Create a prototype for from the Data module.
+		isFakeData = false, // Tells the Model to use the example data, objects, and methods from the Fake module instead of actual data Create a prototype for from the Data module.
 		personProto, makeCid, clearPeopleDb, completeLogin, 
 		makePerson, removePerson, people, chat, initModule;
 

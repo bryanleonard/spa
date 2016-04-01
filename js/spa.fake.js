@@ -126,7 +126,7 @@ spa.fake = (function() {
 						dest_id   : user.id,
 						dest_name : user.name,
 						sender_id : 'id_04',
-						msg_text  : 'Hi there, ' + user.name + '! This is ' + peopleList[3].name
+						msg_text  : 'Hi there, ' + user.name + '! This is ' + peopleList[3].name + '.'
 					}]);
 				}
 				else {
