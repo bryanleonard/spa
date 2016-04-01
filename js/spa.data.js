@@ -28,12 +28,12 @@ spa.data = (function() {
 		return stateMap.sio;
 	}
 
-	var initModule = function() {
-
+	initModule = function() {
+		return true;
 	}
 
 	return {
-		getSio: getSio
+		getSio: getSio,
 		initModule: initModule
 	};
 
