@@ -1,5 +1,8 @@
 'use strict';
 
+// Windows command line for environment
+// setx NODE_ENV development|production
+
 // Module scoped vars
 var http    = require('http'),
 	express = require('express'),
@@ -8,9 +11,20 @@ var http    = require('http'),
 
 // Server config
 app.configure(function() {
-	app.use(express.logger());			// log the things
 	app.use(express.bodyParser()); 		// decodes forms
-	app.use(express.methodOverride(); 	// creating restful services
+	app.use(express.methodOverride()); 	// creating restful services
+});
+
+app.configure('development', function() {
+	app.use(express.logger());			// log the things
+	app.use(express.errorHandler({		// dump exceptions, show stack trace
+		dumpExceptions : true,
+		showStack	   : true
+	}));
+});
+
+app.configure('production', function() {
+	app.use(express.errorHandler);
 });
 
 app.get('/', function(req, res) {
