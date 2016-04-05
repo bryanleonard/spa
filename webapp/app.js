@@ -52,11 +52,11 @@ app.post('/user/create/', function(req, res) {
 	res.send({title: 'user created'})
 });
 
-// read a user obj
-app.get('/user/read/:id', function(req, res) {
+// read a user obj w/ numbers only regex
+app.get('/user/read/:id([0-9]+)', function(req, res) {
 	res.contentType('json');
-	response.send({
-		title: 'user with id' + req.params.id + ' found'
+	res.send({
+		title: 'user with id ' + req.params.id + ' found'
 	});
 });
 
