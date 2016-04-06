@@ -41,25 +41,47 @@ app.get('/', function(req, res) {
 	res.redirect('/spa.html');
 });
 
-app.get('/user/list', function(req, res) {
+// app.all('/user/*?', function(req, res, next) {
+app.all('/:obj_type/*?', function(req, res, next) {
 	res.contentType('json');
-	res.send({title: 'user list'});
+	next();
+});
+
+// app.get('/user/list', function(req, res) {
+app.get('/:obj_type/list', function(req, res) {
+	// res.send({title: 'user list'});
+	res.send({title: req.params.obj_type + ' list'});
 });
 
 // create a user obj
-app.post('/user/create/', function(req, res) {
-	res.contentType('json');
-	res.send({title: 'user created'})
+// app.post('/user/create/', function(req, res) {
+app.post('/:obj_type/create/', function(req, res) {
+	res.send({title: req.params.obj_type + ' created'})
 });
 
-// read a user obj w/ numbers only regex
-app.get('/user/read/:id([0-9]+)', function(req, res) {
-	res.contentType('json');
+// read a user obj w/numbers only regex
+// app.get('/user/read/:id([0-9]+)', function(req, res) {
+app.get('/:obj_type/read/:id([0-9]+)', function(req, res) {
 	res.send({
-		title: 'user with id ' + req.params.id + ' found'
+		title: req.params.obj_type + ' with id ' + req.params.id + ' found'
 	});
 });
 
+// update user
+// app.post('/user/update/:id([0-9]+)', function(req, res) {
+app.post('/:obj_type/update/:id([0-9]+)', function(req, res) {
+	res.send({
+		title: req.params.obj_type + ' with id ' + req.params.id + ' updated'
+	});
+});
+
+// delete user
+// app.get('/user/delete/:id([0-9]+)', function(req, res) {
+app.get('/:obj_type/delete/:id([0-9]+)', function(req, res) {
+	res.send({
+		title: req.params.obj_type + ' with id ' + req.params.id + ' deleted'
+	});
+});
 
 // ---------------
 // Fire it up, man
