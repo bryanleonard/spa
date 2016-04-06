@@ -3,6 +3,19 @@
  * Avatar feature styles
 */
 
+.arh-box--sidebar {  
+	background: #fff  
+}
+
+.arh-box--sidebar h4 {  
+	margin-bottom: 0;  
+	border-bottom: 1px solid red;  
+}  
+
+.arh-box--sidebar ul {  
+	list-style: none;  
+}  
+
 .spa-avtr-box {
 	position      : absolute;
 	width         : 62px;
