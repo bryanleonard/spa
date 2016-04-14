@@ -18,7 +18,7 @@ var http    = require('http'),
 app.configure(function() {
 	app.use(express.bodyParser()); 		// decodes forms
 	app.use(express.methodOverride()); 	// creating restful services
-	app.use(express.basicAuth('user', 'spa'));		// basic user auth, not production quality
+	// app.use(express.basicAuth('user', 'spa'));		// basic user auth, not production quality
 	app.use(express.static(__dirname + '/public')); // root directory for static files as <current_directory>/public
 	app.use(app.router);						    // add the router middleware after the static files
 });
