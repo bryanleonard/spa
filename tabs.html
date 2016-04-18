@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Tab plugin tryout</title>
+
+	<link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,700' rel='stylesheet' type='text/css'>
+
+	<style>
+
+		* {
+			font: 400 16px/1.2 'Roboto Slab', Arial, Helvetica, sans-serif;
+		}
+
+		h1 {
+			font: 800 22px/1 'Roboto Slab', Arial, Helvetica, sans-serif;
+			border-bottom: 1px solid #CACACA;
+			margin-bottom: 2em;
+		}
+
+		h3 {
+			font: 800 18px/1 'Roboto Slab', Arial, Helvetica, sans-serif;
+		}
+
+		ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			border-bottom: 1px solid #cacaca;
+		}
+
+		li {
+			display: inline-block;
+			border: 1px solid #cacaca;
+			border-bottom-color: #fff;
+			padding: .25em .75em;
+			border-top-left-radius: 6px;
+			border-top-right-radius: 6px;
+			margin-bottom: -1px;
+			cursor: pointer;
+		}
+
+		li a {
+			font-weight: 800;
+			color: #000;
+			text-decoration: none;
+		}
+
+		li a:hover {
+			color: #999;
+		}
+
+	</style>
+
+</head>
+<body>
+
+	<h1>Crazy Simple Tab Plugin</h1>
+
+	<ul id="breeds">
+		<li><a href="#doberman">Doberman</a></li>
+		<li><a href="#beagle">Beagle</a></li>
+		<li><a href="#boxer">Boxer</a></li>
+	</ul>
+
+	<div id="doberman" class="tab">
+		<h3>A doberman tab</h3>
+		<img src="https://i.imgflip.com/g2u6c.jpg">
+	</div>
+
+	<div id="beagle" class="tab">
+		<h3>A beagle tab</h3>
+		<img src="https://cdn.meme.am/instances/500x/46851327.jpg">
+	</div>
+
+	<div id="boxer" class="tab">
+		<h3>A boxer tab</h3>
+		<img src="https://cdn.meme.am/instances/500x/33863846.jpg">
+	</div>
+
+
+	<script src="js/lib/jquery-1.11.3.js"></script>
+	<script src="js/lib/jquery.tabs-0.0.1.js"></script>
+
+	<script>
+		$('#breeds').tabs();
+	</script>
+
+</body>
+</html>
